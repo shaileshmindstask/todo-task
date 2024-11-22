@@ -6,7 +6,7 @@ const path = require("path")
 
 const filePath = path.join(__dirname, "..", "..", "data", "user.txt")
 const dirPath = path.join(__dirname, "..", "..", "data")
-
+ 
 router.get("/get-all-user", (req, res) => {
     fs.readFile(filePath, "utf-8", (err, data) => {
         if (err) throw err
