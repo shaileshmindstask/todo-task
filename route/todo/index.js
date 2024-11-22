@@ -35,11 +35,11 @@ router.route("/")
                 if (fileData.data === "false") {
                     return res.status(404).json({ "message": "No Todo Found !" })
                 } else {
-                    console.log(fileData)
-                    console.log(req.userId)
-                    const userTodo = fileData.find((item) => {
-                        return item.userId == req.userId
+                    
+                    const userTodo = fileData.filter((item) => {
+                        return item.userId === req.userId
                     })
+                    console.log(userTodo)
                     if (userTodo) {
                         return res.status(200).json(userTodo)
                     } else {
@@ -121,19 +121,19 @@ router.route("/:id")
                 return res.status(404).json({ "message": "No Todo Found !" })
             }
 
-            let upadteExistingData;
+            let upadteTodoData;
             if (req.body.todoName) {
-                upadteExistingData = { ...searchTodo, todoName: req.body.todoName }
+                upadteTodoData = { ...searchTodo, todoName: req.body.todoName }
             }
             if (req.body.todoDescription) {
-                upadteExistingData = { ...upadteExistingData, lastName: req.body.todoDescription }
+                upadteTodoData = { ...upadteTodoData, todoDescription: req.body.todoDescription }
             }
 
 
             // USE MAP AND WRITE TO THE FILE:
             const updatedData = fileData.map((item) => {
                 if (item.id === todoId) {
-                    return upadteExistingData
+                    return upadteTodoData
                 }
                 return item
             })
@@ -142,6 +142,40 @@ router.route("/:id")
             fs.writeFile(filePath, JSON.stringify(updatedData), (err) => {
                 if (err) throw err
                 return res.status(201).json({ "message": "Todo Updated Successfully !" })
+            })
+        })
+    })
+    .delete((req, res) => {
+        //CHECK PARAMS ID VALID
+        const todoId = Number(req.params.id)
+
+        if (isNaN(todoId)) {
+            return res.status(404).json({ "message": "Inavalid User Id !" })
+        }
+
+        // FETCH DATA FROM FILE AND UPDATE IT:
+        fs.readFile(filePath, "utf-8", (err, data) => {
+            if (err) throw err
+            const fileData = JSON.parse(data)
+            if (fileData.data === "false") {
+                return res.status(404).json({ "message": "No Todo Found !" })
+            }
+            const searchTodo = fileData.find((item) => {
+                return item.id === todoId
+            })
+            if (!searchTodo) {
+                return res.status(404).json({ "message": "No Todo Found !" })
+            }
+
+            // USE MAP AND WRITE TO THE FILE:
+            const updatedData = fileData.filter((item) => {
+                return item.id !== todoId
+            })
+
+            // // WRITE TO THE FILE:
+            fs.writeFile(filePath, JSON.stringify(updatedData), (err) => {
+                if (err) throw err
+                return res.status(201).json({ "message": "Todo Deleted Successfully !" })
             })
         })
     })
