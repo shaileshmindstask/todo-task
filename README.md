@@ -1,3 +1,6 @@
+# npm run dev --- FOR START THE APP
+
+
 for user:
 
 api points: 
